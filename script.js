@@ -71,7 +71,6 @@ function snakeStart(snakeSpeed){
         if(snakes.length>20 && snakeSpeed!==200){
             snakeSpeed=200;
             startGameLoop(snakeSpeed);
-            return;
         }
     snakeSpeed = 200;
     startGameLoop(snakeSpeed);
