@@ -49,8 +49,10 @@ function congoShow(){
             },2000);
 }
 function gameOver(){
+    if(score>=highscore){
         localStorage.setItem('highscore',highscore<score?score:highscore);
         highscore=score>highscore?score:highscore;
+    }
         highscorespn.innerHTML=highscore;
         modal.style.display='flex';
         startGame.style.display='none';
