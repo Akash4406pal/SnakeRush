@@ -1,10 +1,11 @@
 let board= document.querySelector('.game-board');
 let blockHeight=30;
 let blockWidth=30;
+let congoShowed=false;
 let rows=Math.floor(board.clientHeight/blockHeight);
 let cols=Math.floor(board.clientWidth/blockWidth);
 let highscorespn=document.querySelector('#high-score')
-let highscore=Number(localStorage.getItem('highscore')) || 1;
+let highscore=Number(localStorage.getItem('highscore')) || 0;
 highscorespn.innerHTML=highscore;
 let scorespn=document.querySelector('#score')
 let score=scorespn.innerHTML;
@@ -15,7 +16,6 @@ let main=document.querySelector('main');
 let congoDiv=document.createElement('div');
 congoDiv.classList.add('congo-massage');
  main.appendChild(congoDiv);
-console.log(highscorespn.innerHTML);
 let boards=[];
 let foodx,foody
 let direction='left';
@@ -26,6 +26,7 @@ let modal=document.querySelector(".modals")
 let restartGameButton=document.querySelector('#restart-button');
 let startGame=document.querySelector(".start-game")
 let restartGame=document.querySelector(".restart-game")
+let time=gameTimeSpn.innerHTML
 let finalScore=document.querySelector("#final-score")
 for(let row=0;row<rows;row++){
     for(let col=0;col<cols;col++){
@@ -49,10 +50,6 @@ function congoShow(){
             },2000);
 }
 function gameOver(){
-    if(score>=highscore){
-        localStorage.setItem('highscore',highscore<score?score:highscore);
-        highscore=score>highscore?score:highscore;
-    }
         highscorespn.innerHTML=highscore;
         modal.style.display='flex';
         startGame.style.display='none';
@@ -99,36 +96,46 @@ function snakeStart(snakeSpeed){
         boards[`${foodx}-${foody}`].classList.remove('food');
         score++;
         scorespn.innerHTML = score;
-        if(score==highscore+1){
+        if(score>highscore){
+            if(score==highscore+1 && !congoShowed){
             congoShow();
+            congoShowed=true;
+            }
+            localStorage.setItem('highscore',score);
+            highscore=score;
         }
+        
         foodGenerate()
     }
     else{
         let tail = snakes.pop();
         boards[`${tail.x}-${tail.y}`].classList.remove('fill');
     }
-    let currentTime = performance.now();
-    let elapsedTime = currentTime - timeNow;
-    let totalSeconds = Math.floor(elapsedTime / 1000);
-    let minutes = Math.floor(totalSeconds / 60);
-    let seconds = totalSeconds % 60;
-    let formattedTime = `${minutes}-${seconds.toString().padStart(2, '0')}`;
-    gameTimeSpn.innerHTML = formattedTime;
-    
 }
 function startGameLoop(speed) {
     clearInterval(timer);
     timer = setInterval(snakeStart, speed);
 }
+function updateGameTimer(){
+    let [m,s]=time.split('-').map(Number);
+    s+=1;
+    m=Math.floor(s/60);
+    s=s%60;
+    time=`${m}-${s<10?'0'+s:s}`;
+    gameTimeSpn.innerHTML=time;
+}
 startGameButton.addEventListener('click',()=>{
     modal.style.display='none';
     foodGenerate()
+    setInterval(() => {
+    updateGameTimer()
+    }, 1000);
     startGameLoop(snakeSpeed)
 });
 restartGameButton.addEventListener('click',()=>{
     modal.style.display='none';
     score=0;
+    gameTimeSpn.innerHTML='0-00'
     scorespn.innerHTML=score;
     boards[`${foodx}-${foody}`].classList.remove('food');
     snakes.forEach(part=>{
